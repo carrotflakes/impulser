@@ -41,9 +41,12 @@ fn main() {
     }
     .render(src.into(), &mut |src| {
         let d = src.distance_with(dst);
-        let i = (d * sample_rate as f64 / speed) as usize;
-        if i < buffer.len() {
-            buffer[i] += d.powf(-decay);
+        let p = d * sample_rate as f64 / speed;
+        let i = p.floor() as usize;
+        let power = d.powf(-decay);
+        if i < buffer.len() - 1 {
+            buffer[i] += power * (1.0 - p.fract());
+            buffer[i + 1] += power * p.fract();
         }
     });
 
