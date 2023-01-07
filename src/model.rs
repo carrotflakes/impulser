@@ -24,7 +24,7 @@ impl Point {
         self.0[1]
     }
 
-    pub fn left_side_of_line(&self, line: [Point; 2]) -> bool {
+    pub fn is_left_side_of_line(&self, line: [Point; 2]) -> bool {
         let [a, b] = line;
         let nb = b - a;
         let ns = *self - a;
@@ -92,5 +92,5 @@ impl From<Point> for TruncatedWave {
 #[test]
 fn test() {
     dbg!(Point::new(2.0, 3.0).symmetric_point([Point::new(0.0, 0.0), Point::new(1.0, 1.0)]));
-    assert!(Point::new(2.0, 3.0).left_side_of_line([Point::new(0.0, 0.0), Point::new(1.0, 1.0)]));
+    assert!(Point::new(2.0, 3.0).is_left_side_of_line([Point::new(0.0, 0.0), Point::new(1.0, 1.0)]));
 }
