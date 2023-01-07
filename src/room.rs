@@ -4,19 +4,16 @@ use crate::model::*;
 
 #[derive(Debug, Clone)]
 pub struct Room {
-    pub(crate) closed_points: Vec<Point>,
+    pub(crate) points: Vec<Point>,
 }
 
 impl Room {
-    pub fn new(mut points: Vec<Point>) -> Self {
-        points.push(points[0]);
-        Self {
-            closed_points: points,
-        }
+    pub fn new(points: Vec<Point>) -> Self {
+        Self { points }
     }
 
     pub fn hit<'a>(&'a self, src: TruncatedWave) -> impl Iterator<Item = TruncatedWave> + 'a {
-        self.closed_points.windows(2).filter_map(move |ps| {
+        self.points.windows(2).filter_map(move |ps| {
             let [p1, p2] = [ps[0], ps[1]];
 
             if !src.point.is_left_side_of_line([p1, p2]) {
