@@ -14,7 +14,7 @@ use impulser::{
 
 fn main() {
     let sample_rate = 44100;
-    let speed = 34.0;
+    let speed = 340.0;
     let decay = 1.0;
 
     let room = impulser::room::Room::new(vec![
@@ -34,12 +34,13 @@ fn main() {
     let duration = 2;
     let mut buffer = vec![0.0; duration * sample_rate];
 
+    // let start = std::time::Instant::now();
     Render {
         dst,
         cutoff_distance: duration as f64 * speed,
         hit: |src: TruncatedWave| room.hit(src),
     }
-    .render(src.into(), &mut |src| {
+    .render2(src.into(), &mut |src| {
         let d = src.distance_with(dst);
         let p = d * sample_rate as f64 / speed;
         let i = p.floor() as usize;
@@ -49,6 +50,7 @@ fn main() {
             buffer[i + 1] += power * p.fract();
         }
     });
+    // dbg!(start.elapsed());
 
     remove_dc_offset(&mut buffer);
     normalize(&mut buffer);
