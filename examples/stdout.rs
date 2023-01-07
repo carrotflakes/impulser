@@ -4,7 +4,7 @@
 // cargo run --release --example stdout 2> /dev/null > audio.raw
 // sox -t raw -e signed-integer -b 16 -r 44100 -c 1 audio.raw audio.wav
 
-use std::io::Write;
+use std::{f64::consts::PI, io::Write};
 
 use impulser::{
     model::{Point, TruncatedWave},
@@ -30,7 +30,8 @@ fn main() {
     let dst = Point::new(0.0, 0.5);
 
     let duration = 2;
-    let mut buffer = vec![0.0; duration * sample_rate];
+    let ch = 1;
+    let mut buffer = vec![0.0; duration * sample_rate * ch];
 
     // let start = std::time::Instant::now();
     Render {
@@ -43,9 +44,21 @@ fn main() {
         let p = d * sample_rate as f64 / speed;
         let i = p.floor() as usize;
         let power = d.powf(-decay);
-        if i < buffer.len() - 1 {
-            buffer[i] += power * (1.0 - p.fract());
-            buffer[i + 1] += power * p.fract();
+        if ch == 1 {
+            if i < duration * sample_rate - 1 {
+                buffer[i] += power * (1.0 - p.fract());
+                buffer[i + 1] += power * p.fract();
+            }
+        } else if ch == 2 {
+            let a = (src.point - dst).atan2();
+            let r = (a.cos() + 1.0) / 2.0;
+            let l = ((a + PI).cos() + 1.0) / 2.0;
+            if i < duration * sample_rate - 1 {
+                buffer[i * 2] += power * l * (1.0 - p.fract());
+                buffer[i * 2 + 1] += power * r * (1.0 - p.fract());
+                buffer[i * 2 + 2] += power * l * p.fract();
+                buffer[i * 2 + 3] += power * r * p.fract();
+            }
         }
     });
     // dbg!(start.elapsed());
