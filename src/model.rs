@@ -10,11 +10,6 @@ impl Point {
     }
 
     #[inline]
-    pub fn atan2(&self) -> f64 {
-        self.0[1].atan2(self.0[0])
-    }
-
-    #[inline]
     pub fn x(&self) -> f64 {
         self.0[0]
     }
@@ -24,26 +19,30 @@ impl Point {
         self.0[1]
     }
 
+    #[inline]
+    pub fn atan2(&self) -> f64 {
+        self.y().atan2(self.x())
+    }
+
     pub fn is_left_side_of_line(&self, line: [Point; 2]) -> bool {
         let [a, b] = line;
         let nb = b - a;
         let ns = *self - a;
-        let y = ns.0[0] * nb.0[1] - ns.0[1] * nb.0[0];
-        y < 0.0
+        (ns.x() * nb.y() - ns.y() * nb.x()) < 0.0
     }
 
     pub fn symmetric_point(&self, line: [Point; 2]) -> Self {
         let [a, b] = line;
         let nb = b - a;
         let ns = *self - a;
-        let x = ns.0[0] * nb.0[0] + ns.0[1] * nb.0[1];
-        let y = ns.0[0] * -nb.0[1] + ns.0[1] * nb.0[0];
+        let x = ns.x() * nb.x() + ns.y() * nb.y();
+        let y = ns.x() * -nb.y() + ns.y() * nb.x();
         let y = -y;
 
-        let scale = nb.0[0].powi(2) + nb.0[1].powi(2);
+        let scale = nb.x().powi(2) + nb.y().powi(2);
         Point([
-            (x * nb.0[0] - y * nb.0[1]) / scale + a.0[0],
-            (x * nb.0[1] + y * nb.0[0]) / scale + a.0[1],
+            (x * nb.x() - y * nb.y()) / scale + a.x(),
+            (x * nb.y() + y * nb.x()) / scale + a.y(),
         ])
     }
 }
@@ -53,7 +52,7 @@ impl std::ops::Sub for Point {
 
     #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
-        Point([self.0[0] - rhs.0[0], self.0[1] - rhs.0[1]])
+        Point([self.x() - rhs.x(), self.y() - rhs.y()])
     }
 }
 
@@ -66,12 +65,12 @@ pub struct TruncatedWave {
 impl TruncatedWave {
     #[inline]
     pub fn distance_with(&self, dst: Point) -> f64 {
-        (self.point.0[0] - dst.0[0]).hypot(self.point.0[1] - dst.0[1])
+        (self.point.x() - dst.x()).hypot(self.point.y() - dst.y())
     }
 
     pub fn hit_with_point(&self, dst: Point) -> bool {
         let vec = dst - self.point;
-        let angle = vec.0[1].atan2(vec.0[0]);
+        let angle = vec.y().atan2(vec.x());
         if let Some(range) = &self.angle_range {
             range.contains(&angle)
         } else {
