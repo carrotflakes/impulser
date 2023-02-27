@@ -15,7 +15,10 @@ use impulser::{
 fn main() {
     let sample_rate = 44100;
     let speed = 340.0;
-    let decay = 1.0;
+    // Attenuation over distance (1.0 ~)
+    let decay = 1.1;
+    let duration = 2;
+    let ch = 1;
 
     let mut points = vec![
         Point::new(1.0, -1.01),
@@ -29,8 +32,6 @@ fn main() {
     let src = Point::new(0.1, 0.0);
     let dst = Point::new(0.0, 0.5);
 
-    let duration = 2;
-    let ch = 1;
     let mut buffer = vec![0.0; duration * sample_rate * ch];
 
     // let start = std::time::Instant::now();
